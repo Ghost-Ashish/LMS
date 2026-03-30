@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>LMS — Tagore Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(135deg,#f5f7fa,#e4ecf7);min-height:100vh;display:flex;flex-direction:column;color:#000;}
+
+/* ── NAVBAR ── */
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:0 40px;height:62px;background:#fff;position:sticky;top:0;z-index:200;box-shadow:0 2px 10px rgba(0,0,0,0.07);}
+.nav-logo{font-size:1.2rem;font-weight:600;letter-spacing:1px;cursor:pointer;}
+.nav-links{display:flex;align-items:center;gap:4px;}
+.nav-links a{padding:6px 14px;cursor:pointer;text-decoration:none;color:#555;font-weight:400;font-size:0.9rem;border-radius:8px;transition:background 0.2s,color 0.2s;}
+.nav-links a:hover{background:#f0f0f0;color:#000;}
+.nav-links a.active{color:#000;font-weight:600;background:#f5f5f5;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.login-btn{background:#000;color:#fff;padding:8px 22px;border-radius:22px;cursor:pointer;font-weight:500;font-size:0.88rem;border:2px solid #000;transition:background 0.25s,color 0.25s,transform 0.15s,box-shadow 0.2s;white-space:nowrap;}
+.login-btn:hover{background:#fff;color:#000;box-shadow:0 4px 14px rgba(0,0,0,0.14);transform:translateY(-1px);}
+.login-btn:active{transform:translateY(0);}
+
+/* ── HAMBURGER ── */
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;cursor:pointer;background:none;border:none;padding:5px;border-radius:8px;transition:background 0.2s;}
+.hamburger:hover{background:#f0f0f0;}
+.hamburger span{display:block;height:2px;width:100%;background:#000;border-radius:2px;transition:transform 0.3s,opacity 0.3s,width 0.3s;transform-origin:center;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;width:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* ── DRAWER OVERLAY ── */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:300;opacity:0;transition:opacity 0.3s;}
+.drawer-overlay.show{display:block;}
+.drawer-overlay.visible{opacity:1;}
+
+/* ── SLIDE DRAWER ── */
+.drawer{position:fixed;top:0;left:-290px;width:270px;height:100vh;background:#fff;z-index:400;box-shadow:4px 0 24px rgba(0,0,0,0.13);transition:left 0.32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto;}
+.drawer.open{left:0;}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid #eee;flex-shrink:0;}
+.drawer-logo{font-size:1.15rem;font-weight:600;letter-spacing:1px;}
+.drawer-close{width:32px;height:32px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:18px;color:#000;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
+.drawer-close:hover{background:#f0f0f0;}
+.drawer-nav{padding:10px 0;flex:1;}
+.drawer-nav a{display:flex;align-items:center;gap:14px;padding:14px 22px;font-size:0.95rem;font-weight:400;color:#555;text-decoration:none;cursor:pointer;transition:background 0.18s,color 0.18s;border-left:3px solid transparent;}
+.drawer-nav a .d-icon{font-size:1.1rem;width:22px;text-align:center;}
+.drawer-nav a:hover{background:#f7f7f7;color:#000;}
+.drawer-nav a.active{font-weight:600;color:#000;border-left-color:#000;background:#f9f9f9;}
+.drawer-bottom{padding:16px 20px;border-top:1px solid #eee;flex-shrink:0;}
+.drawer-login-btn{display:block;width:100%;padding:12px;border-radius:12px;background:#000;color:#fff;font-family:'Poppins',sans-serif;font-size:0.92rem;font-weight:500;border:2px solid #000;cursor:pointer;text-align:center;transition:background 0.25s,color 0.25s,transform 0.15s;}
+.drawer-login-btn:hover{background:#fff;color:#000;}
+.drawer-login-btn:active{transform:scale(0.98);}
+
+/* ── SECTIONS ── */
+section{display:none;}
+#home{display:block;padding:0;text-align:center;}
+
+/* ── HERO ── */
+.hero{position:relative;width:100%;height:88vh;min-height:360px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;}
+.hero-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.50);}
+.hero-content{position:relative;z-index:2;color:#fff;padding:24px;max-width:680px;margin:auto;}
+.hero-content h1{font-size:3rem;font-weight:600;margin-bottom:14px;line-height:1.2;}
+.hero-content p{font-size:1.05rem;font-weight:300;margin-bottom:30px;opacity:0.9;line-height:1.75;}
+.hero-btn{display:inline-block;background:#fff;color:#000;padding:13px 36px;border-radius:28px;font-weight:600;font-size:0.95rem;cursor:pointer;border:2px solid #fff;transition:background 0.25s,color 0.25s,transform 0.15s,box-shadow 0.25s;}
+.hero-btn:hover{background:transparent;color:#fff;box-shadow:0 6px 22px rgba(255,255,255,0.22);transform:translateY(-2px);}
+.hero-btn:active{transform:translateY(0);}
+
+/* ── ABOUT ── */
+#about{padding:0;text-align:left;}
+.about-hero{position:relative;width:100%;height:380px;overflow:hidden;}
+.about-hero img{width:100%;height:100%;object-fit:cover;object-position:center 40%;}
+.about-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15),rgba(0,0,0,0.6));}
+.about-hero-title{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);color:#fff;text-align:center;width:90%;}
+.about-hero-title h2{font-size:2.4rem;font-weight:600;line-height:1.2;}
+.about-hero-title p{font-size:1rem;font-weight:300;margin-top:8px;opacity:0.9;}
+.about-body{max-width:1100px;margin:0 auto;padding:56px 40px;}
+.about-intro{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-bottom:56px;}
+.about-intro-text h3{font-size:1.4rem;font-weight:600;margin-bottom:14px;color:#111;}
+.about-intro-text p{font-size:0.95rem;color:#555;line-height:1.85;margin-bottom:12px;}
+.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.stat-card{background:#f8f9fb;border:1px solid #e8eaef;border-radius:12px;padding:18px 20px;}
+.stat-card .stat-num{font-size:1.5rem;font-weight:600;color:#111;line-height:1;}
+.stat-card .stat-label{font-size:0.82rem;color:#777;margin-top:5px;}
+.about-sections{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:48px;}
+.about-card{background:#fff;border:1px solid #e8eaef;border-radius:14px;padding:24px 26px;}
+.about-card h4{font-size:1rem;font-weight:600;margin-bottom:12px;color:#111;display:flex;align-items:center;gap:8px;}
+.about-card ul{list-style:none;padding:0;}
+.about-card ul li{font-size:0.88rem;color:#555;padding:5px 0;border-bottom:1px solid #f2f2f2;line-height:1.6;}
+.about-card ul li:last-child{border-bottom:none;}
+.about-card p{font-size:0.9rem;color:#555;line-height:1.75;}
+.about-full-width{background:#fff;border:1px solid #e8eaef;border-radius:14px;padding:24px 26px;margin-bottom:28px;}
+.about-full-width h4{font-size:1rem;font-weight:600;margin-bottom:14px;color:#111;display:flex;align-items:center;gap:8px;}
+.about-full-width ul{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 24px;}
+.about-full-width ul li{font-size:0.88rem;color:#555;padding:5px 0;border-bottom:1px solid #f2f2f2;}
+.about-events{background:#f8f9fb;border:1px solid #e8eaef;border-radius:14px;padding:24px 26px;margin-bottom:28px;}
+.about-events h4{font-size:1rem;font-weight:600;margin-bottom:12px;color:#111;display:flex;align-items:center;gap:8px;}
+.about-events ul{list-style:none;padding:0;}
+.about-events ul li{font-size:0.88rem;color:#555;padding:7px 0 7px 16px;border-left:3px solid #000;margin-bottom:8px;line-height:1.6;}
+.about-staff{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:48px;}
+.staff-card{background:#fff;border:1px solid #e8eaef;border-radius:14px;padding:20px 22px;display:flex;align-items:flex-start;gap:14px;}
+.staff-avatar{width:46px;height:46px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1rem;flex-shrink:0;}
+.staff-info h5{font-size:0.95rem;font-weight:600;margin-bottom:2px;}
+.staff-info .staff-role{font-size:0.82rem;color:#888;margin-bottom:6px;}
+.staff-info p{font-size:0.82rem;color:#555;line-height:1.7;}
+.about-table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+.about-table th{background:#111;color:#fff;padding:10px 14px;text-align:left;font-weight:500;}
+.about-table td{padding:10px 14px;border-bottom:1px solid #eee;color:#444;}
+.about-table tr:last-child td{border-bottom:none;}
+.about-table tr:nth-child(even) td{background:#fafafa;}
+
+/* ── CONTACT ── */
+#contact{padding:0;text-align:left;}
+.ct-hero{background:#111;padding:64px 40px;text-align:center;}
+.ct-hero h2{font-size:2.4rem;font-weight:600;color:#fff;margin-bottom:12px;}
+.ct-hero p{font-size:1rem;color:rgba(255,255,255,0.72);max-width:580px;margin:0 auto;line-height:1.8;}
+.ct-body{max-width:1100px;margin:0 auto;padding:56px 40px;}
+.ct-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:48px;}
+.ct-action-card{background:#fff;border:1px solid #e8eaef;border-radius:14px;padding:26px 22px;text-align:center;transition:box-shadow 0.2s,transform 0.2s;}
+.ct-action-card:hover{box-shadow:0 6px 24px rgba(0,0,0,0.08);transform:translateY(-3px);}
+.ct-action-icon{font-size:2rem;margin-bottom:12px;}
+.ct-action-card h4{font-size:1rem;font-weight:600;margin-bottom:6px;color:#111;}
+.ct-action-card p{font-size:0.85rem;color:#777;line-height:1.6;margin-bottom:14px;}
+.ct-action-btn{display:inline-block;padding:9px 22px;border-radius:20px;border:2px solid #000;background:#000;color:#fff;font-size:0.84rem;font-weight:500;cursor:pointer;text-decoration:none;transition:background 0.22s,color 0.22s,transform 0.15s;}
+.ct-action-btn:hover{background:#fff;color:#000;}
+.ct-action-btn:active{transform:scale(0.97);}
+.ct-newsletter{background:#111;border-radius:16px;padding:36px 40px;margin-bottom:48px;display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;}
+.ct-newsletter-text h4{font-size:1.15rem;font-weight:600;color:#fff;margin-bottom:6px;}
+.ct-newsletter-text p{font-size:0.88rem;color:rgba(255,255,255,0.65);line-height:1.6;}
+.ct-newsletter-text .ct-sub-note{font-size:0.78rem;color:rgba(255,255,255,0.45);margin-top:8px;}
+.ct-newsletter-form{display:flex;gap:10px;flex-shrink:0;}
+.ct-newsletter-form input{padding:11px 18px;border-radius:22px;border:none;font-family:'Poppins',sans-serif;font-size:0.88rem;width:clamp(160px,240px,100%);outline:none;}
+.ct-newsletter-form button{padding:11px 24px;border-radius:22px;border:2px solid #fff;background:#fff;color:#000;font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:background 0.22s,color 0.22s;}
+.ct-newsletter-form button:hover{background:transparent;color:#fff;}
+.ct-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-bottom:48px;}
+.ct-form-card{background:#fff;border:1px solid #e8eaef;border-radius:14px;padding:30px;}
+.ct-form-card h4{font-size:1.05rem;font-weight:600;margin-bottom:4px;color:#111;}
+.ct-form-card .ct-sub{font-size:0.85rem;color:#888;margin-bottom:20px;}
+.ct-form-group{margin-bottom:14px;}
+.ct-form-group label{display:block;font-size:0.82rem;font-weight:500;color:#555;margin-bottom:5px;}
+.ct-form-group input,.ct-form-group textarea{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #ddd;font-family:'Poppins',sans-serif;font-size:0.88rem;color:#333;transition:border-color 0.2s,box-shadow 0.2s;resize:vertical;}
+.ct-form-group input:focus,.ct-form-group textarea:focus{outline:none;border-color:#888;box-shadow:0 0 0 3px rgba(0,0,0,0.06);}
+.ct-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ct-send-btn{width:100%;padding:12px;border:2px solid #000;border-radius:10px;background:#000;color:#fff;font-family:'Poppins',sans-serif;font-weight:500;font-size:0.92rem;cursor:pointer;transition:background 0.25s,color 0.25s,transform 0.15s;}
+.ct-send-btn:hover{background:#fff;color:#000;}
+.ct-send-btn:active{transform:translateY(1px);}
+.ct-info-col{display:flex;flex-direction:column;gap:20px;}
+.ct-info-card{background:#fff;border:1px solid #e8eaef;border-radius:14px;padding:24px;}
+.ct-info-card h4{font-size:0.95rem;font-weight:600;margin-bottom:14px;color:#111;}
+.ct-hours-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f2f2f2;font-size:0.87rem;}
+.ct-hours-row:last-child{border-bottom:none;}
+.ct-hours-row .day{color:#555;}
+.ct-hours-row .time{font-weight:500;color:#222;}
+.ct-badge-open{background:#e6f4ea;color:#2d7a3a;font-size:0.72rem;font-weight:600;padding:3px 9px;border-radius:20px;}
+.ct-badge-closed{background:#fdecea;color:#b71c1c;font-size:0.72rem;font-weight:600;padding:3px 9px;border-radius:20px;}
+.ct-social-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ct-social-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:11px;border:1px solid #e8eaef;background:#fafafa;cursor:pointer;text-decoration:none;transition:background 0.18s,border-color 0.18s,transform 0.15s;color:#111;}
+.ct-social-btn:hover{background:#f0f0f0;border-color:#ccc;transform:translateY(-1px);}
+.ct-social-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.ct-social-name{font-size:0.88rem;font-weight:600;}
+.ct-social-handle{font-size:0.76rem;color:#888;}
+.si-ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366);}
+.si-li{background:#0a66c2;}
+.si-tw{background:#1d9bf0;}
+.si-wa{background:#25d366;}
+
+/* ── FOOTER ── */
+footer{background:#fff;padding:36px 40px 24px;margin-top:auto;}
+.footer-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;}
+.footer-col-left{text-align:left;}
+.footer-col-center{text-align:center;}
+.footer-col-right{text-align:right;}
+.footer-grid h4{font-size:0.92rem;font-weight:600;margin-bottom:10px;}
+.footer-grid p{font-size:0.86rem;color:#666;margin-bottom:6px;cursor:pointer;transition:color 0.2s;}
+.footer-grid p:hover{color:#000;}
+.footer-logo img{width:130px;}
+.footer-divider{height:1px;background:linear-gradient(90deg,transparent,#ccc,transparent);margin:22px auto 12px;max-width:1100px;}
+.footer-bottom{max-width:1100px;margin:12px auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:0.8rem;color:#888;}
+.footer-bottom a{text-decoration:none;color:#666;transition:color 0.2s;}
+.footer-bottom a:hover{color:#000;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .navbar{padding:0 24px;}
+  .about-intro{grid-template-columns:1fr;}
+  .about-sections{grid-template-columns:1fr;}
+  .about-full-width ul{grid-template-columns:1fr 1fr;}
+  .about-staff{grid-template-columns:1fr;}
+  .ct-actions{grid-template-columns:1fr 1fr;}
+  .ct-bottom{grid-template-columns:1fr;}
+  .ct-newsletter{flex-direction:column;align-items:flex-start;}
+  .ct-newsletter-form{flex-direction:column;width:100%;}
+  .ct-newsletter-form input{width:100%;}
+}
+@media(max-width:768px){
+  .navbar{padding:0 16px;height:58px;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .hero{height:72vh;}
+  .hero-content h1{font-size:2rem;}
+  .hero-content p{font-size:0.92rem;}
+  .hero-btn{padding:11px 28px;font-size:0.88rem;}
+  .about-hero{height:260px;}
+  .about-hero-title h2{font-size:1.7rem;}
+  .about-body{padding:36px 20px;}
+  .about-full-width ul{grid-template-columns:1fr;}
+  .ct-hero{padding:48px 22px;}
+  .ct-hero h2{font-size:1.8rem;}
+  .ct-body{padding:36px 20px;}
+  .ct-actions{grid-template-columns:1fr;}
+  .ct-form-row{grid-template-columns:1fr;}
+  footer{padding:28px 20px 18px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:20px;}
+  .footer-col-right{text-align:left;grid-column:1/-1;}
+  .footer-col-center{text-align:left;}
+  .footer-logo img{width:110px;}
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:6px;}
+}
+@media(max-width:480px){
+  .hero{height:65vh;}
+  .hero-content h1{font-size:1.55rem;}
+  .hero-content p{font-size:0.85rem;}
+  .about-hero{height:210px;}
+  .about-hero-title h2{font-size:1.35rem;}
+  .ct-hero h2{font-size:1.45rem;}
+  .ct-newsletter{padding:24px 20px;}
+  .ct-social-grid{grid-template-columns:1fr 1fr;}
+  footer{padding:24px 16px 16px;}
+  .footer-grid{grid-template-columns:1fr;}
+  .footer-col-right{text-align:left;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="nav-logo" onclick="showSection('home')">LMS</div>
+  <nav class="nav-links">
+    <a onclick="showSection('home')" id="nav-home" class="active">Home</a>
+    <a onclick="showSection('about')" id="nav-about">About</a>
+    <a onclick="showSection('contact')" id="nav-contact">Contact</a>
+  </nav>
+  <div class="nav-right">
+    <div class="login-btn" onclick="openLoginTab()">Login</div>
+    <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- SLIDE DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <span class="drawer-logo">LMS</span>
+    <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+  </div>
+  <nav class="drawer-nav">
+    <a onclick="showSection('home');closeDrawer();" id="dnav-home" class="active">
+      <span class="d-icon">🏠</span> Home
+    </a>
+    <a onclick="showSection('about');closeDrawer();" id="dnav-about">
+      <span class="d-icon">📖</span> About
+    </a>
+    <a onclick="showSection('contact');closeDrawer();" id="dnav-contact">
+      <span class="d-icon">✉️</span> Contact
+    </a>
+  </nav>
+  <div class="drawer-bottom">
+    <button class="drawer-login-btn" onclick="openLoginTab();closeDrawer();">Login / Register</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div style="flex:1;">
+
+<!-- HOME -->
+<section id="home">
+  <div class="hero">
+    <img class="hero-img" src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80" alt="Library interior">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Library Management System</h1>
+      <p>Empowering learners through knowledge, books, and digital resources</p>
+      <div class="hero-btn" onclick="openLoginTab()">Get Started</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-hero">
+    <img src="https://www.lkouniv.ac.in/site/writereaddata/siteContent/202004111451121885tagore-library.jpg" alt="Tagore Library, University of Lucknow">
+    <div class="about-hero-overlay"></div>
+    <div class="about-hero-title">
+      <h2>Tagore Library</h2>
+      <p>Central Research Library — University of Lucknow</p>
+    </div>
+  </div>
+  <div class="about-body">
+    <div class="about-intro">
+      <div class="about-intro-text">
+        <h3>Introduction</h3>
+        <p>Tagore Library is the Central Research Library of the University of Lucknow. It is here that the academic fraternity — both the preceptor and his pupils — could find intellectual food.</p>
+        <p>It is respected as one of the oldest, well-organised and richest libraries of India. With the advent of Information Technology, this library is also changing its traditional format.</p>
+        <p><strong>Working Hours:</strong> 08:00 a.m. to 08:00 p.m.<br>
+        <strong>Annual Grant:</strong> ₹25 Lakhs (State Govt.)<br>
+        <strong>Holidays:</strong> Sundays, National &amp; Gazetted Holidays</p>
+      </div>
+      <div>
+        <div class="about-stats">
+          <div class="stat-card"><div class="stat-num">5,50,468</div><div class="stat-label">Books</div></div>
+          <div class="stat-card"><div class="stat-num">10,000</div><div class="stat-label">Theses</div></div>
+          <div class="stat-card"><div class="stat-num">50,000</div><div class="stat-label">Bound Journals</div></div>
+          <div class="stat-card"><div class="stat-num">2,000</div><div class="stat-label">Manuscripts</div></div>
+          <div class="stat-card" style="grid-column:1/-1"><div class="stat-num">10,000+</div><div class="stat-label">Online E-Journals &amp; Databases (via INFLIBNET)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-sections">
+      <div class="about-card">
+        <h4><span>📚</span> Services Offered</h4>
+        <ul>
+          <li>Book Borrowing Facility</li>
+          <li>Reading Facility</li>
+          <li>Reference Service</li>
+          <li>Research Facility</li>
+          <li>Bonerjee Library Facility</li>
+          <li>Online E-Journals Browsing &amp; E-mail Facility</li>
+          <li>Photostat Facility</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <h4><span>🌐</span> Electronic Access</h4>
+        <p>Since 2004, access to scholarly electronic journals and databases has been made available through UGC–Infonet E-Journals Consortium via INFLIBNET, Ahmedabad.</p>
+        <p style="margin-top:10px;">More than 10,000 full-text electronic journals &amp; databases are available via <a href="http://www.inflibnet.ac.in" target="_blank" style="color:#000;font-weight:500;">inflibnet.ac.in</a>.</p>
+      </div>
+    </div>
+
+    <div class="about-full-width">
+      <h4><span>🏛️</span> Sections of the Library</h4>
+      <ul>
+        <li>Acquisition Section</li><li>English &amp; Modern European Language Processing</li><li>Hindi and Sanskrit Processing</li>
+        <li>Urdu and Oriental Processing</li><li>Circulation Section</li><li>Bonnerjee Library</li>
+        <li>Periodical Section</li><li>Documentation Section</li><li>Reference Section</li>
+        <li>Reading Hall</li><li>Manuscripts Section</li><li>Arts Gallery</li>
+        <li>Computer Nodes Room</li><li>AC &amp; Electrical Section</li><li>Bindery</li>
+        <li>Office</li><li>Photostat Section</li><li>AC Auditorium (100 seats)</li>
+      </ul>
+    </div>
+
+    <div class="about-full-width">
+      <h4><span>📖</span> Library Collection</h4>
+      <table class="about-table">
+        <thead><tr><th>#</th><th>Item</th><th>Count</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Books</td><td>5,50,468</td></tr>
+          <tr><td>2</td><td>Theses</td><td>10,000</td></tr>
+          <tr><td>3</td><td>Bound Journals</td><td>50,000</td></tr>
+          <tr><td>4</td><td>Manuscripts</td><td>2,000</td></tr>
+          <tr><td>5</td><td>Online E-Journals &amp; Databases (INFLIBNET)</td><td>10,000+</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="about-events">
+      <h4><span>📅</span> Recent Events</h4>
+      <ul>
+        <li>Book Fair organized from 17th–20th January 2013 at Lucknow University.</li>
+        <li>Foundation Day of Tagore Library celebrated on 4th March 2013.</li>
+        <li>Dr. S.R. Ranganathan's Birthday celebrated on 12th August 2013.</li>
+        <li>National Library Week celebrated during 14–20 November 2013 with a special lecture on 18th November.</li>
+      </ul>
+    </div>
+
+    <div class="about-full-width">
+      <h4><span>🚀</span> Future Plans</h4>
+      <ul>
+        <li>Complete Automation &amp; Digitization</li><li>Online Public Access Catalogue (OPAC)</li><li>RFID Tags on Books</li>
+        <li>Institutional Repository</li><li>E-Learning CMS</li><li>Cyber Library</li>
+        <li>Audio-Visual Section</li><li>CCTV in Every Section</li><li>Restoration of Art Gallery</li>
+        <li>Digitization of Manuscripts</li><li>National &amp; International Resource Sharing</li><li>Extension of Library Building</li>
+      </ul>
+    </div>
+
+    <h3 style="font-size:1.2rem;font-weight:600;margin-bottom:18px;color:#111;">Administrative Staff</h3>
+    <div class="about-staff">
+      <div class="staff-card">
+        <div class="staff-avatar">KK</div>
+        <div class="staff-info">
+          <h5>Prof. Kamal Kumar</h5>
+          <div class="staff-role">Honorary Librarian, Tagore Library</div>
+          <p>📞 9415004600<br>✉️ kamalkumar230666@gmail.com</p>
+        </div>
+      </div>
+      <div class="staff-card">
+        <div class="staff-avatar">JM</div>
+        <div class="staff-info">
+          <h5>Dr. Jyoti Misra</h5>
+          <div class="staff-role">Deputy Librarian, Tagore Library</div>
+          <p>📞 9415088973<br>✉️ jyotimisra@yahoo.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="ct-hero">
+    <h2>Get in Touch</h2>
+    <p>Ready to join the entrepreneurial revolution? Have questions or ideas? We'd love to hear from you. Let's build something amazing together and stay connected with our growing community.</p>
+  </div>
+  <div class="ct-body">
+    <div class="ct-actions">
+      <div class="ct-action-card">
+        <div class="ct-action-icon">🤝</div>
+        <h4>Join Our Team</h4>
+        <p>Interested in becoming part of E-Cell LU?</p>
+        <a class="ct-action-btn" href="#">Apply Now</a>
+      </div>
+      <div class="ct-action-card">
+        <div class="ct-action-icon">🎯</div>
+        <h4>Attend an Event</h4>
+        <p>Check out our upcoming events and workshops</p>
+        <a class="ct-action-btn" href="#">View Events</a>
+      </div>
+      <div class="ct-action-card">
+        <div class="ct-action-icon">🕐</div>
+        <h4>Office Hours</h4>
+        <p>Visit us during our regular office hours</p>
+        <a class="ct-action-btn" href="#">See Schedule</a>
+      </div>
+    </div>
+
+    <div class="ct-newsletter">
+      <div class="ct-newsletter-text">
+        <h4>Stay Updated</h4>
+        <p>Subscribe to our newsletter and never miss out on exciting events, workshops, opportunities, and success stories from our entrepreneurial community.</p>
+        <div class="ct-sub-note">Join 500+ students already subscribed</div>
+      </div>
+      <div class="ct-newsletter-form">
+        <input type="email" placeholder="Enter your email address">
+        <button onclick="alert('Subscribed successfully!')">Subscribe Now</button>
+      </div>
+    </div>
+
+    <div class="ct-bottom">
+      <div class="ct-form-card">
+        <h4>Send us a Message</h4>
+        <div class="ct-sub">Have a question, suggestion, or want to collaborate? We're here to help!</div>
+        <div class="ct-form-row">
+          <div class="ct-form-group"><label>First Name</label><input type="text" placeholder="John"></div>
+          <div class="ct-form-group"><label>Last Name</label><input type="text" placeholder="Doe"></div>
+        </div>
+        <div class="ct-form-group"><label>Email Address</label><input type="email" placeholder="john@example.com"></div>
+        <div class="ct-form-group"><label>Subject</label><input type="text" placeholder="How can we help?"></div>
+        <div class="ct-form-group"><label>Message</label><textarea rows="5" placeholder="Write your message here..."></textarea></div>
+        <button class="ct-send-btn" onclick="alert('Message sent! We\'ll get back to you soon.')">Send Message</button>
+      </div>
+
+      <div class="ct-info-col">
+        <div class="ct-info-card">
+          <h4>📍 Contact Information</h4>
+          <div class="ct-hours-row"><span class="day">Email</span><span class="time">ecell@lkouniv.ac.in</span></div>
+          <div class="ct-hours-row"><span class="day">Location</span><span class="time">University of Lucknow, UP</span></div>
+          <div class="ct-hours-row"><span class="day">Website</span><span class="time"><a href="https://www.ecellfoet.in/" target="_blank" style="color:#000;">ecellfoet.in ↗️</a></span></div>
+        </div>
+        <div class="ct-info-card">
+          <h4>🕐 Office Hours</h4>
+          <div class="ct-hours-row"><span class="day">Monday – Friday</span><div style="display:flex;align-items:center;gap:8px;"><span class="time">9:00 AM – 3:00 PM</span><span class="ct-badge-open">Open</span></div></div>
+          <div class="ct-hours-row"><span class="day">Saturday</span><div style="display:flex;align-items:center;gap:8px;"><span class="time">10:00 AM – 1:00 PM</span><span class="ct-badge-open">Open</span></div></div>
+          <div class="ct-hours-row"><span class="day">Sunday</span><div style="display:flex;align-items:center;gap:8px;"><span class="time">Closed</span><span class="ct-badge-closed">Closed</span></div></div>
+        </div>
+        <div class="ct-info-card">
+          <h4>📱 Follow Us on Social Media</h4>
+          <div class="ct-social-grid">
+            <a class="ct-social-btn" href="#">
+              <div class="ct-social-icon si-ig" style="color:#fff;">📸</div>
+              <div><div class="ct-social-name">Instagram</div><div class="ct-social-handle">@ecell_lu</div></div>
+            </a>
+            <a class="ct-social-btn" href="#">
+              <div class="ct-social-icon si-li" style="color:#fff;">💼</div>
+              <div><div class="ct-social-name">LinkedIn</div><div class="ct-social-handle">E-Cell LU</div></div>
+            </a>
+            <a class="ct-social-btn" href="#">
+              <div class="ct-social-icon si-tw" style="color:#fff;">🐦</div>
+              <div><div class="ct-social-name">Twitter</div><div class="ct-social-handle">@ecell_lu</div></div>
+            </a>
+            <a class="ct-social-btn" href="#">
+              <div class="ct-social-icon si-wa" style="color:#fff;">💬</div>
+              <div><div class="ct-social-name">WhatsApp</div><div class="ct-social-handle">Join Group</div></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col-left">
+      <h4>Quick Links</h4>
+      <p onclick="showSection('about')">About Us</p>
+      <p>Events</p>
+      <p>Team</p>
+      <p onclick="showSection('contact')">Contact</p>
+    </div>
+    <div class="footer-col-center footer-logo">
+      <a href="https://www.ecellfoet.in/" target="_blank">
+        <img src="https://www.ecellfoet.in/_next/image?url=%2FLOGO%2Flu-full.png&w=640&q=75" alt="LU Logo">
+      </a>
+    </div>
+    <div class="footer-col-right">
+      <h4>Contact Info</h4>
+      <p>Faculty of Engineering &amp; Technology</p>
+      <p>University of Lucknow</p>
+      <p>Lucknow, Uttar Pradesh</p>
+    </div>
+  </div>
+  <div class="footer-divider"></div>
+  <div class="footer-bottom">
+    <span>©️ 2026 E-Cell, University of Lucknow. All rights reserved.</span>
+    <a href="https://www.ecellfoet.in/" target="_blank">Built by E-Cell Tech Team ↗️</a>
+  </div>
+</footer>
+
+<!-- LOGIN NEW-TAB TEMPLATE -->
+<template id="loginTemplate">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Login – LMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(135deg,#f5f7fa,#e4ecf7);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px 0;}
+.wrap{width:min(380px,100%);}
+.tab-btns{display:flex;}
+.tab-btn{flex:1;padding:11px;border:1px solid #ccc;background:#f5f7fa;cursor:pointer;font-family:'Poppins',sans-serif;font-size:0.9rem;font-weight:500;transition:background 0.2s,color 0.2s;}
+.tab-btn:first-child{border-radius:12px 0 0 0;}
+.tab-btn:last-child{border-radius:0 12px 0 0;}
+.tab-btn.active{background:#000;color:#fff;border-color:#000;}
+.form-box{background:#fff;padding:28px;border-radius:0 0 20px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.1);}
+.form-panel{display:none;}
+.form-panel.active{display:block;}
+h3{margin-bottom:4px;font-weight:600;font-size:1.05rem;}
+.form-subtitle{font-size:0.8rem;color:#888;margin-bottom:16px;}
+input,select{width:100%;padding:10px 12px;margin:5px 0;border-radius:10px;border:1px solid #ccc;font-family:'Poppins',sans-serif;font-size:0.88rem;transition:border-color 0.2s,box-shadow 0.2s;}
+input:focus,select:focus{outline:none;border-color:#888;box-shadow:0 0 0 3px rgba(0,0,0,0.07);}
+.submit-btn{width:100%;padding:12px;border:2px solid #000;border-radius:10px;background:#000;color:#fff;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:500;margin-top:8px;font-size:0.92rem;transition:background 0.25s,color 0.25s,transform 0.15s,box-shadow 0.25s;}
+.submit-btn:hover{background:#fff;color:#000;box-shadow:0 4px 14px rgba(0,0,0,0.12);transform:translateY(-1px);}
+.submit-btn:active{transform:translateY(0);}
+
+/* ── FORGOT PASSWORD LINK ── */
+.forgot-row{display:flex;justify-content:flex-end;margin-top:2px;margin-bottom:2px;}
+.forgot-link{font-size:0.8rem;color:#555;cursor:pointer;background:none;border:none;font-family:'Poppins',sans-serif;padding:0;text-decoration:underline;text-underline-offset:2px;transition:color 0.2s;}
+.forgot-link:hover{color:#000;}
+
+/* ── FORGOT PASSWORD MODAL ── */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;}
+.modal-backdrop.show{display:flex;}
+.modal{background:#fff;border-radius:18px;padding:32px 28px;width:min(340px,90vw);box-shadow:0 16px 48px rgba(0,0,0,0.18);animation:modalIn 0.25s ease;}
+@keyframes modalIn{from{transform:scale(0.93);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal h4{font-size:1rem;font-weight:600;margin-bottom:4px;color:#111;}
+.modal p{font-size:0.82rem;color:#777;margin-bottom:16px;line-height:1.6;}
+.modal input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #ccc;font-family:'Poppins',sans-serif;font-size:0.88rem;margin-bottom:12px;}
+.modal input:focus{outline:none;border-color:#888;box-shadow:0 0 0 3px rgba(0,0,0,0.07);}
+.modal-btns{display:flex;gap:10px;}
+.modal-send-btn{flex:1;padding:11px;border:2px solid #000;border-radius:10px;background:#000;color:#fff;font-family:'Poppins',sans-serif;font-weight:500;font-size:0.88rem;cursor:pointer;transition:background 0.22s,color 0.22s;}
+.modal-send-btn:hover{background:#fff;color:#000;}
+.modal-cancel-btn{flex:1;padding:11px;border:2px solid #ddd;border-radius:10px;background:#fff;color:#555;font-family:'Poppins',sans-serif;font-weight:500;font-size:0.88rem;cursor:pointer;transition:background 0.22s,border-color 0.22s;}
+.modal-cancel-btn:hover{background:#f5f5f5;border-color:#bbb;}
+
+/* ── PHOTO UPLOAD ── */
+.photo-upload-label{display:block;font-size:0.82rem;font-weight:500;color:#555;margin-bottom:6px;margin-top:4px;}
+.photo-upload-area{border:2px dashed #ccc;border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;margin-bottom:6px;position:relative;overflow:hidden;}
+.photo-upload-area:hover{border-color:#888;background:#fafafa;}
+.photo-upload-area.has-photo{border-color:#000;border-style:solid;}
+.photo-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-preview-wrap{display:none;flex-direction:column;align-items:center;gap:8px;}
+.photo-preview-wrap.visible{display:flex;}
+.photo-preview-img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid #111;}
+.photo-upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.photo-upload-placeholder.hidden{display:none;}
+.photo-icon{font-size:1.8rem;line-height:1;}
+.photo-upload-text{font-size:0.82rem;color:#888;}
+.photo-upload-text strong{color:#333;font-weight:500;}
+.photo-change-btn{font-size:0.76rem;color:#555;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Poppins',sans-serif;text-underline-offset:2px;}
+
+/* ── FOOTER ── */
+.page-footer{background:#fff;padding:32px 40px 20px;margin-top:auto;width:100%;margin-top:32px;}
+.footer-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;}
+.footer-col-left{text-align:left;}
+.footer-col-center{text-align:center;}
+.footer-col-right{text-align:right;}
+.footer-grid h4{font-size:0.92rem;font-weight:600;margin-bottom:10px;}
+.footer-grid p{font-size:0.85rem;color:#666;margin-bottom:6px;}
+.footer-logo img{width:120px;}
+.footer-divider{height:1px;background:linear-gradient(90deg,transparent,#ccc,transparent);margin:18px auto 10px;max-width:1100px;}
+.footer-bottom{max-width:1100px;margin:10px auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:0.78rem;color:#888;}
+.footer-bottom a{text-decoration:none;color:#666;}
+.footer-bottom a:hover{color:#000;}
+@media(max-width:768px){
+  .page-footer{padding:24px 20px 16px;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .footer-col-right{text-align:left;grid-column:1/-1;}
+  .footer-col-center{text-align:left;}
+  .footer-bottom{flex-direction:column;align-items:flex-start;}
+}
+@media(max-width:480px){
+  .footer-grid{grid-template-columns:1fr;}
+  .wrap{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-backdrop" id="forgotModal" onclick="closeForgotModal(event)">
+  <div class="modal">
+    <h4>🔑 Reset Password</h4>
+    <p>Enter your registered email address. We'll send you a link to reset your password.</p>
+    <input type="email" id="forgotEmail" placeholder="Enter your email address">
+    <div class="modal-btns">
+      <button class="modal-cancel-btn" onclick="closeForgotModalDirect()">Cancel</button>
+      <button class="modal-send-btn" onclick="sendResetLink()">Send Reset Link</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tab-btns">
+    <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+    <button class="tab-btn" onclick="switchTab('register')">Register</button>
+  </div>
+  <div class="form-box">
+
+    <!-- LOGIN PANEL -->
+    <div class="form-panel active" id="loginPanel">
+      <h3>Welcome Back</h3>
+      <div class="form-subtitle">Sign in to your LMS account</div>
+      <input type="number" id="lid" placeholder="University ID" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      <input id="lpass" type="password" placeholder="Password">
+      <div class="forgot-row">
+        <button class="forgot-link" onclick="openForgotModal()">Forgot Password?</button>
+      </div>
+      <button class="submit-btn" onclick="login()">Login</button>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div class="form-panel" id="registerPanel">
+      <h3>Create Account</h3>
+      <div class="form-subtitle">Fill in your details to register</div>
+
+      <!-- PHOTO UPLOAD -->
+      <label class="photo-upload-label">Profile Photo <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+      <div class="photo-upload-area" id="photoUploadArea">
+        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+        <div class="photo-upload-placeholder" id="photoPlaceholder">
+          <div class="photo-icon">📷</div>
+          <div class="photo-upload-text"><strong>Click to upload</strong> your photo</div>
+          <div class="photo-upload-text" style="font-size:0.74rem;">JPG, PNG or GIF · Max 5MB</div>
+        </div>
+        <div class="photo-preview-wrap" id="photoPreviewWrap">
+          <img id="photoPreviewImg" src="" alt="Preview" class="photo-preview-img">
+          <div class="photo-upload-text" id="photoFileName" style="font-size:0.78rem;color:#555;"></div>
+          <button class="photo-change-btn" onclick="triggerFileInput(event)">Change photo</button>
+        </div>
+      </div>
+
+      <input type="number" id="rid" placeholder="University ID" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      <input id="remail" placeholder="Email">
+      <input id="rpass" type="password" placeholder="Password">
+      <select id="department">
+        <option value="">Select Department</option>
+        <option>Computer Science &amp; Engineering</option>
+        <option>Electronics &amp; Communication</option>
+        <option>CSE(AI)</option><option>Mechanical</option>
+        <option>Electrical</option><option>Civil</option><option>Other</option>
+      </select>
+      <select id="year">
+        <option value="">Select Year</option>
+        <option>1st Year</option><option>2nd Year</option>
+        <option>3rd Year</option><option>4th Year</option>
+      </select>
+      <select id="programme">
+        <option value="">Select Programme</option>
+        <option>B.Tech</option><option>M.Tech</option><option>PhD</option>
+      </select>
+      <select id="role">
+        <option value="">Select Role</option>
+        <option>Student</option><option>Faculty</option><option>Admin</option>
+      </select>
+      <input id="contact" type="number" placeholder="Contact Number">
+      <button class="submit-btn" onclick="register()">Register</button>
+    </div>
+
+  </div>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-grid">
+    <div class="footer-col-left">
+      <h4>Quick Links</h4>
+      <p>About Us</p><p>Events</p><p>Team</p><p>Contact</p>
+    </div>
+    <div class="footer-col-center footer-logo">
+      <a href="https://www.ecellfoet.in/" target="_blank">
+        <img src="https://www.ecellfoet.in/_next/image?url=%2FLOGO%2Flu-full.png&w=640&q=75" alt="LU Logo">
+      </a>
+    </div>
+    <div class="footer-col-right">
+      <h4>Contact Info</h4>
+      <p>Faculty of Engineering &amp; Technology</p>
+      <p>University of Lucknow</p>
+      <p>Lucknow, Uttar Pradesh</p>
+    </div>
+  </div>
+  <div class="footer-divider"></div>
+  <div class="footer-bottom">
+    <span>©️ 2026 E-Cell, University of Lucknow. All rights reserved.</span>
+    <a href="https://www.ecellfoet.in/" target="_blank">Built by E-Cell Tech Team ↗️</a>
+  </div>
+</footer>
+
+<script>
+/* ── TAB SWITCHER ── */
+function switchTab(tab){
+  document.getElementById('loginPanel').classList.toggle('active',tab==='login');
+  document.getElementById('registerPanel').classList.toggle('active',tab==='register');
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register'));
+  });
+}
+
+/* ── LOGIN ── */
+function login(){
+  const id=document.getElementById('lid').value;
+  const pass=document.getElementById('lpass').value;
+  if(!id||!pass){alert('Please fill all fields');return;}
+  alert('Login successful! Welcome back.');
+}
+
+/* ── REGISTER ── */
+function register(){
+  const id=document.getElementById('rid').value;
+  const email=document.getElementById('remail').value;
+  const pass=document.getElementById('rpass').value;
+  if(!id||!email||!pass){alert('Please fill required fields');return;}
+  alert('Registered successfully!');
+  switchTab('login');
+}
+
+/* ── FORGOT PASSWORD MODAL ── */
+function openForgotModal(){
+  document.getElementById('forgotModal').classList.add('show');
+  document.getElementById('forgotEmail').focus();
+}
+function closeForgotModal(e){
+  if(e.target===document.getElementById('forgotModal'))
+    document.getElementById('forgotModal').classList.remove('show');
+}
+function closeForgotModalDirect(){
+  document.getElementById('forgotModal').classList.remove('show');
+}
+function sendResetLink(){
+  const email=document.getElementById('forgotEmail').value.trim();
+  if(!email){alert('Please enter your email address.');return;}
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRegex.test(email)){alert('Please enter a valid email address.');return;}
+  document.getElementById('forgotModal').classList.remove('show');
+  alert('Password reset link sent to:\n'+email+'\n\nPlease check your inbox.');
+  document.getElementById('forgotEmail').value='';
+}
+
+/* ── PHOTO UPLOAD ── */
+function handlePhotoUpload(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.size>5*1024*1024){alert('File size must be under 5MB.');return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    document.getElementById('photoPreviewImg').src=ev.target.result;
+    document.getElementById('photoFileName').textContent=file.name;
+    document.getElementById('photoPlaceholder').classList.add('hidden');
+    document.getElementById('photoPreviewWrap').classList.add('visible');
+    document.getElementById('photoUploadArea').classList.add('has-photo');
+  };
+  reader.readAsDataURL(file);
+}
+function triggerFileInput(e){
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('photoInput').click();
+}
+</script>
+</body>
+</html>
+</template>
+
+<script>
+function setActive(page){
+  ['home','about','contact'].forEach(p=>{
+    document.getElementById('nav-'+p)?.classList.toggle('active',p===page);
+    document.getElementById('dnav-'+p)?.classList.toggle('active',p===page);
+  });
+}
+function hideAll(){
+  document.querySelectorAll('section').forEach(el=>{ el.style.display='none'; });
+}
+function showSection(id){
+  hideAll();
+  document.getElementById(id).style.display='block';
+  setActive(id);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleDrawer(){
+  document.getElementById('drawer').classList.contains('open')?closeDrawer():openDrawer();
+}
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+  document.getElementById('hamburger').classList.add('open');
+  document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>document.getElementById('drawerOverlay').classList.add('visible'));
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('visible');
+  document.getElementById('hamburger').classList.remove('open');
+  document.body.style.overflow='';
+  setTimeout(()=>document.getElementById('drawerOverlay').classList.remove('show'),300);
+}
+function openLoginTab(){
+  const html=document.getElementById('loginTemplate').innerHTML;
+  const tab=window.open('','_blank');
+  tab.document.open();
+  tab.document.write(html);
+  tab.document.close();
+}
+window.onload=()=>{
+  document.getElementById('home').style.display='block';
+  setActive('home');
+};
+</script>
+</body>
+</html>
